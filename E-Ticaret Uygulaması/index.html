@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kozmik Wear Outlet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: #f5f7fa;
+
+      color: #333;
+  background-repeat: none;
+  background-size: cover;
+}
+    
+    header {
+      background-color: #1f1d88;
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .sepet-buton, .admin-buton {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .sepet-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100%;
+      background: white;
+      box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      padding: 20px;
+      overflow-y: auto;
+      z-index: 999;
+    }
+    .sepet-panel.acik {
+      transform: translateX(0);
+    }
+    .kapat-buton {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      float: right;
+    }
+    .bildirim {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 1000;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .urunler {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      padding: 20px;
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h3 {
+      margin: 0 0 10px;
+    }
+    .card p {
+      margin: 5px 0;
+    }
+    .btn {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    h2 {
+      margin-top: 40px;
+      font-size: 28px;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+    }
+    .admin-panel {
+      display: none;
+      margin-top: 30px;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    .admin-panel.acik {
+      display: block;
+    }
+    .admin-panel input {
+      margin: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 200px;
+    }
+    .admin-panel .foto-preview {
+      margin-top: 10px;
+      max-width: 100%;
+      height: auto;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <STRong>Kozmik Wear</STRong>  <i class="fa fa-shop" style="margin-right: 1350px;"></i>   
+    
+    <div>
+      <button class="sepet-buton" onclick="toggleSepet()">🛒 Sepet</button>
+      <button class="admin-buton" onclick="toggleAdmin()">🛠️ Admin Paneli</button>
+    </div>
+  </header>
+
+  <div class="sepet-panel" id="sepetPanel">
+    <button class="kapat-buton" onclick="toggleSepet()">✖</button>
+    <h2>Sepet</h2>
+    <div id="sepet"></div>
+  </div>
+
+  <div class="bildirim" id="bildirim">Ürün sepete eklendi!</div>
+
+  <div class="container">
+    <h2>Ürünler</h2>
+    <div class="urunler" id="urunler"></div>
+
+    <!-- Admin Paneli -->
+    <div class="admin-panel" id="adminPanel">
+      <h2>Ürün Ekle</h2>
+      <input type="text" id="ad" placeholder="Ürün Adı">
+      <input type="text" id="aciklama" placeholder="Açıklama">
+      <input type="number" id="fiyat" placeholder="Fiyat">
+      <input type="file" id="foto" accept="image/*" onchange="fotoOnizleme()">
+      <img id="fotoPreview" class="foto-preview" alt="Fotoğraf Önizlemesi">
+      <button class="btn" onclick="urunEkle()">Ürün Ekle</button>
+    </div>
+  </div>
+
+  <script>
+    const urunListesi = [
+      { id: 1, ad: "T-shirt", fiyat: 200, aciklama: "Pamuklu tişört", foto: "https://static.ticimax.cloud/61950/uploads/urunresimleri/buyuk/regular-tshirt-b345-f.jpg" },
+      { id: 2, ad: "Baggy Pantolon", fiyat: 600, aciklama: "Kot pantolon", foto: "https://www.aksesuarix.com/UserFiles/Fotograflar/90891-gri-erkek-baggy-jean-pantolon-us4187gr-us4187gr-01.jpg" },
+      { id: 3, ad: "Ayakkabı", fiyat: 300, aciklama: "Spor ayakkabı", foto: "https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,e_sharpen/global/395016/04/fnd/TUR/w/1000/h/1000/fmt/png" },
+      { id: 4, ad: "Baggy Ceket", fiyat: 400, aciklama: "Kışlık ceket", foto: "https://img.joomcdn.net/fbf1132e2cf7fc942a1c37461c69f0f6959960b3_original.jpeg" },
+      { id: 5, ad: "Şapka", fiyat: 100, aciklama: "Yazlık şapka", foto: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2IZRv1KJbLN-WI1joMBxJVTewE1QhMmJr7g&s" },
+      { id: 5, ad: "Sweatshirt", fiyat: 450, aciklama: "Kışlık Sweatshirt", foto: "https://static.ticimax.cloud/37512/uploads/urunresimleri/buyuk/trendiz-unisex-spider-sweatshirt-siyah-1-8c45.jpg"},
+    ];
+
+    const sepet = [];
+
+    function urunleriGoster() {
+      const urunlerDiv = document.getElementById("urunler");
+      urunlerDiv.innerHTML = "";
+      urunListesi.forEach(urun => {
+        const urunHTML = `
+          <div class="card">
+            <h3>${urun.ad}</h3>
+            <p>${urun.aciklama}</p>
+            <p><strong>${urun.fiyat} TL</strong></p>
+            ${urun.foto ? `<img src="${urun.foto}" alt="${urun.ad}" style="width: 100%; height: auto;">` : ''}
+            <button class="btn" onclick="sepeteEkle(${urun.id})">Sepete Ekle</button>
+          </div>
+        `;
+        urunlerDiv.innerHTML += urunHTML;
+      });
+    }
+    
+
+    function sepeteEkle(id) {
+      const urun = urunListesi.find(u => u.id === id);
+      if (!sepet.find(s => s.id === id)) {
+        sepet.push(urun);
+        bildirimGoster("Ürün sepete eklendi!");
+      } else {
+        bildirimGoster("Bu ürün zaten sepette!");
+      }
+      sepetiGoster();
+    }
+
+    function bildirimGoster(mesaj) {
+      const bildirim = document.getElementById("bildirim");
+      bildirim.textContent = mesaj;
+      bildirim.style.display = "block";
+      setTimeout(() => {
+        bildirim.style.display = "none";
+      }, 2000);
+    }
+
+    function sepettenSil(id) {
+      const index = sepet.findIndex(u => u.id === id);
+      if (index > -1) sepet.splice(index, 1);
+      sepetiGoster();
+    }
+
+    function sepetiGoster() {
+      const sepetDiv = document.getElementById("sepet");
+      sepetDiv.innerHTML = "";
+      if (sepet.length === 0) {
+        sepetDiv.innerHTML = "<p>Sepetiniz boş.</p>";
+        return;
+      }
+      sepet.forEach(urun => {
+        const urunHTML = `
+          <div class="card">
+            <h4>${urun.ad}</h4>
+            <p><strong>${urun.fiyat} TL</strong></p>
+            <button class="btn" onclick="sepettenSil(${urun.id})">Sil</button>
+          </div>
+        `;
+        sepetDiv.innerHTML += urunHTML;
+      });
+    }
+
+    function toggleSepet() {
+      document.getElementById("sepetPanel").classList.toggle("acik");
+    }
+
+    function toggleAdmin() {
+      document.getElementById("adminPanel").classList.toggle("acik");
+    }
+
+    function fotoOnizleme() {
+      const fotoInput = document.getElementById("foto");
+      const fotoPreview = document.getElementById("fotoPreview");
+      const file = fotoInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          fotoPreview.src = e.target.result;
+          fotoPreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function urunEkle() {
+      const ad = document.getElementById("ad").value;
+      const aciklama = document.getElementById("aciklama").value;
+      const fiyat = parseFloat(document.getElementById("fiyat").value);
+      const foto = document.getElementById("foto").files[0];
+
+      if (ad && aciklama && !isNaN(fiyat)) {
+        const fotoUrl = foto ? URL.createObjectURL(foto) : '';
+        const yeniUrun = { id: urunListesi.length + 1, ad, fiyat, aciklama, foto: fotoUrl };
+        urunListesi.push(yeniUrun);
+        urunleriGoster();
+        alert("Yeni ürün eklendi: " + ad);
+        toggleAdmin();  // Admin panelini kapat
+      } else {
+        alert("Lütfen tüm alanları doldurun!");
+      }
+    }
+    
+    urunleriGoster();
+  </script>
+</body>
+</html>
